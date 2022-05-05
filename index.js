@@ -23,7 +23,7 @@ async function run() {
         const productCollection = client.db("wareHouse").collection("product");
         
         // Get All
-        app.get("/product", async (req, res) => {
+        app.get("/inventory", async (req, res) => {
             const query = {};
             const cursor = productCollection.find(query);
             const products = await cursor.toArray();
@@ -31,7 +31,7 @@ async function run() {
         });
 
         // Get One
-        app.get('/product/:id', async (req, res)=>{
+        app.get('/inventory/:id', async (req, res)=>{
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
             const product = await productCollection.findOne(query);
@@ -39,14 +39,14 @@ async function run() {
         })
 
         // POST
-        app.post('/product', async (req,res)=>{
+        app.post('/inventory', async (req,res)=>{
             const newProduct = req.body;
             const result = await productCollection.insertOne(newProduct);
             res.send(result);
         })
 
         // DELETE
-        app.delete('/product/:id', async (req,res)=>{
+        app.delete('/inventory/:id', async (req,res)=>{
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
             const product = await productCollection.deleteOne(query);
