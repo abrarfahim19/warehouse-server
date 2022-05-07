@@ -64,7 +64,7 @@ async function run() {
             const updatedProduct = {
                 $set:rest,
               };
-            const result = await movies.updateOne(filter, updatedProduct, options);
+            const result = await productCollection.updateOne(filter, updatedProduct, options);
             console.log(result);
             res.send(result);
         })
