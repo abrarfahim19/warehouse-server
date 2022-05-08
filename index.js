@@ -85,7 +85,7 @@ async function run() {
 
         // Find Max Stocked
         app.get("/maxstock", async (req, res) => {
-            const cursor = await productCollection.find({}, {stock: -1, _id:0}).sort({stock:-1}).limit(3);
+            const cursor = await productCollection.find({}, {stock: -1, _id:0}).sort({stock:-1}).limit(1);
             const userProduct = await cursor.toArray();
             res.send(userProduct);
         });
