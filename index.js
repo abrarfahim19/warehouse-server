@@ -35,6 +35,7 @@ async function run() {
         // Get One
         app.get('/inventory/:id', async (req, res)=>{
             const id = req.params.id;
+            console.log(id);
             const query = {_id: ObjectId(id)};
             const product = await productCollection.findOne(query);
             res.send(product);
@@ -50,6 +51,7 @@ async function run() {
         // DELETE
         app.delete('/inventory/:id', async (req,res)=>{
             const id = req.params.id;
+            console.log(id)
             const query = {_id: ObjectId(id)};
             const product = await productCollection.deleteOne(query);
             res.send(product);
@@ -58,6 +60,7 @@ async function run() {
         // Update
         app.put('/inventory/:id', async (req,res)=>{
             const id = req.params.id;
+            console.log(id);
             const filter = {_id: ObjectId(id)};
             const options = { upsert: true };
             const {_id,...rest} = req.body; 
@@ -65,10 +68,28 @@ async function run() {
                 $set:rest,
               };
             const result = await productCollection.updateOne(filter, updatedProduct, options);
+            const updatedResponse = await productCollection.findOne(filter);
             console.log(result);
-            res.send(result);
+            res.send(updatedResponse);
         })
         
+        // Find By Email
+        app.get("/userinventory/:email", async (req, res) => {
+            const email = req.params.email;
+            console.log(email);
+            const query = { email: email };
+            const cursor = await productCollection.find(query);
+            const userProduct = await cursor.toArray();
+            res.send(userProduct);
+        });
+
+        // Find Max Stocked
+        app.get("/maxstock", async (req, res) => {
+            const cursor = await productCollection.find({}, {stock: -1, _id:0}).sort({stock:-1}).limit(3);
+            const userProduct = await cursor.toArray();
+            res.send(userProduct);
+        });
+
         // Get All (user)
         app.get("/user", async (req, res) => {
             const query = {};
