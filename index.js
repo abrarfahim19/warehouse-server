@@ -13,13 +13,23 @@ app.use(cors());
 app.use(express.json());
 
 // Verify
-function verifyJWT(req,res,next){
-    const authHeader = req.headers.authorization;
-    if(!authHeader){
-        return res.status(401).send('unauthorized');
+function verifyJWT(req, res, next) {
+    const authHeadrs = req.headers.authorization;
+    if (!authHeadrs) {
+      return res.status(401).send({
+        message: "unauthorized access",
+      });
     }
-    next();
-}
+    jwt.verify(authHeadrs, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(403).send({
+          message: "FORBIDDED",
+        });
+      }
+      req.decoded = decoded;
+      next();
+    });
+  }
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.vwtpj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
