@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
+
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 require("dotenv").config();
@@ -9,6 +11,15 @@ const app = express();
 //MiddleWare
 app.use(cors());
 app.use(express.json());
+
+// Verify
+function verifyJWT(req,res,next){
+    const authHeader = req.headers.authorization;
+    if(!authHeader){
+        return res.status(401).send('unauthorized');
+    }
+    next();
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.vwtpj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -22,7 +33,16 @@ async function run() {
         await client.connect();
         const productCollection = client.db("wareHouse").collection("product");
         const userCollection = client.db("wareHouse").collection("user");
-        
+        // Auth
+        app.post('/login',async(req, res)=>{
+            const user = req.body;
+            const accessToken = jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{
+                expiresIn:'1d'
+            });
+            res.send({accessToken});
+        })
+
+
         // Get All (Product)
         app.get("/inventory", async (req, res) => {
             const query = {};
@@ -34,6 +54,8 @@ async function run() {
         
         // Get One
         app.get('/inventory/:id', async (req, res)=>{
+            const authHeader = req.headers.authorization;
+            console.log(authHeader)
             const id = req.params.id;
             console.log(id);
             const query = {_id: ObjectId(id)};
